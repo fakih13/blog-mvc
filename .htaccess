@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteBase /
+
+# Rediriger les requêtes pour la racine directement vers public/index.php
+RewriteRule ^$ public/index.php [L]
+
+# Pour tout autre requête n'étant pas un fichier ou un dossier existant,
+# rediriger vers public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ public/index.php [QSA,L]
