@@ -89,12 +89,12 @@ class FoodModel
           $platID = $connexion->lastInsertId();
 
           // Boucle pour ajouter les PlatID et IngredientID dans platIngredient
-          foreach ($postData['Ingredients'] as $ingredientID) {
+          foreach ($postData['Ingredients'] as $ingredient) {
             $addIngredientQuery = "INSERT INTO `platingredient`(`PlatID`, `IngredientID`) VALUES (:PlatID, :IngredientID)";
             $addIngredientStatement = $connexion->prepare($addIngredientQuery);
 
             $addIngredientStatement->bindParam(':PlatID', $platID);
-            $addIngredientStatement->bindParam(':IngredientID', $ingredientID);
+            $addIngredientStatement->bindParam(':IngredientID', $ingredient['IngredientID']);
 
             $addIngredientStatement->execute();
 

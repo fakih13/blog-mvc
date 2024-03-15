@@ -14,9 +14,22 @@ class Food
   {
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      $productModel = new FoodModel();
       $errors = [];
-      echo "post";
-      $counter = 0;
+      /* $ingredientRecipes = array(
+        array(
+          'Nom' => 'terre',
+          'IngredientID' => '14'
+        ),
+        array(
+          'Nom' => 'roquette',
+          'IngredientID' => '12'
+        ),
+        array(
+          'Nom' => 'huile',
+          'IngredientID' => '31'
+        )
+      ); */
       $ingredientRecipes = [];
       $counter = 0;
       while (isset($_POST['ingredientRecipe_' . $counter])) {
@@ -28,9 +41,8 @@ class Food
         $counter++;
       }
 
-      /* var_dump($ingredientRecipes); */
 
-      $productModel = new FoodModel();
+
       $newIngredients = []; // Initialisation de $newIngredients
       foreach ($ingredientRecipes as &$ingredient) { // Notez le & pour faire référence à la valeur réelle
         $result = $productModel->searchIngredient($ingredient['Nom']);
@@ -45,8 +57,7 @@ class Food
       unset($ingredient); // Dissociez la référence de $ingredient
 
       // enregistrement des nouveaux ingrédient dans la table ingredient
-      if (!empty($newIngredients)) { // Vérification si $newIngredients n'est pas vide avant de le var_dump
-        echo "j'enregistre";
+      if (!empty($newIngredients)) {
         foreach ($newIngredients as $saveIngredient) {
           $registerAnIngredient =  $productModel->setIngredient($saveIngredient);
           if ($registerAnIngredient['success'] !== true) {
@@ -66,14 +77,14 @@ class Food
 
       // enregistrement du plat dans la table plat (nom, prix, description)
 
-      $postdata['Nom'] = /* $_POST['Nom']; */ 'Couscous';
-      $postdata['Description'] = /* $_POST['Description']; */ "Dégustez notre délicieux couscous marocain : semoule légère, légumes frais et viande tendre, le tout sublimé par des épices authentiques. Un voyage de saveurs en seulement une bouchée !";
-      $postdata['Prix'] = /* $_POST['Prix']; */ 15;
+      $postdata['Nom'] = $_POST['Nom'];
+      $postdata['Description'] = $_POST['Description'];
+      $postdata['Prix'] = $_POST['Prix'];
       $postdata['Ingredients'] = $ingredientRecipes;
-      /* var_dump($postdata['Ingredients']); */
-      $productModel->setRecipe($postdata);
-
-      // enregistrement des inregidents liées au plat dans la table platingredient
+      $addRecipe = $productModel->setRecipe($postdata);
+      if ($addRecipe['success'] === true) {
+        echo $addRecipe['message'];
+      }
     }
     require_once('../src/views/admin/food/add.php');
   }
