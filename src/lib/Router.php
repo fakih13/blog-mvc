@@ -22,7 +22,7 @@ class Router
                 list($controller, $method) = explode('@', $action);
 
                 // Vérification de la session pour les routes admin
-                if (strpos($route, '/admin') === 0 && !isset($_SESSION['ADMIN'])) {
+                if (strpos($route, '/admin') === 0 && !isset($_SESSION['ADMIN_EMAIL'])) {
                     header("Location: /login/admin"); // Redirige vers la page de login
                     return;
                 }

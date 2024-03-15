@@ -11,10 +11,16 @@ $router = new Router();
 
 $router->add('/', 'Index@home');
 $router->add('/login/admin', 'Admin@login');
+$router->add('/register/admin', 'Admin@register');
 $router->add('/disconnect', 'Admin@disconnect');
 $router->add('/admin', 'Admin@index');
-$router->add('/admin/setPost', 'Admin@setpost');
-$router->add('/admin/testEditor', 'Admin@testEditor');
+$router->add('/admin/newPost', 'Admin@newPost');
+$router->add('/admin/setPost', 'Admin@setPost');
+$router->add('/admin/food', 'Food@home');
+$router->add('/admin/food/ajouter', 'Food@addMeal');
+$router->add('/searchIngredient/{q}', 'Food@searchIngredient');
+$router->add('/admin/food/supprimer', 'Food@removeMeal');
+$router->add('/admin/food/modifier', 'Food@updateMeal');
 
 
 $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

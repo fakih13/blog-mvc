@@ -18,7 +18,7 @@
 
 <body>
     <header>
-        <?php if (isset($_SESSION['ADMIN'])) : ?>
+        <?php if (isset($_SESSION['ADMIN_EMAIL'])) : ?>
             <form action="/disconnect" method="post">
                 <button type="submit">déconnexion</button>
             </form>
@@ -26,7 +26,7 @@
         <?php endif ?>
     </header>
     <main>
-        <div class="container">
+        <div class="container mt-5">
             <?= $content ?>
         </div>
     </main>
