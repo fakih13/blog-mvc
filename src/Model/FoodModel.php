@@ -16,7 +16,7 @@ class FoodModel
     $this->database = new Database();
   }
   /**
-   * @param array $postData
+   * @param string $postData
    * @return boolean  
    */
   public function setIngredient($postData)
@@ -33,6 +33,7 @@ class FoodModel
       if ($statement->rowCount() > 0) {
         $response['success'] = true;
         $response['message'] = 'Enregistrement réussi';
+        $response['ingredientId'] = $connexion->lastInsertId();
       } else {
         throw new \Exception("Erreur lors de l'enregistrement de l'ingrédient " . $postData);
       }
