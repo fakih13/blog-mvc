@@ -63,6 +63,32 @@ class FoodModel
     }
   }
   /**
+   * Récupère les recettes depuis la table 'plat' dans la base de données.
+   * 
+   * @return array|false Un tableau contenant les recettes si des recettes sont trouvées, sinon false.
+   */
+  public function getRecipes()
+  {
+    try {
+      $connexion = $this->database->dbConnect();
+      $savingMealInSql = "SELECT * FROM `plat`";
+      $statement = $connexion->prepare($savingMealInSql);
+      $statement->execute();
+      $success = $statement->fetchAll(\PDO::FETCH_ASSOC);
+      if ($success) {
+        $response['success'] = true;
+        $response['data'] = $success;
+      } else {
+        throw new \Exception('Erreur lors de la récupération des données en base de données');
+      }
+    } catch (\Exception $e) {
+      $response['success'] = false;
+      $response['message'] = $e->getMessage();
+    }
+
+    return $response;
+  }
+  /**
    * @param array $postData
    * @return boolean  
    */

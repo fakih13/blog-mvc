@@ -92,6 +92,8 @@ class Food
 
   public function removeMeal()
   {
+    $productModel = new FoodModel();
+    $results = $productModel->getRecipes();
     require_once('../src/views/admin/food/remove.php');
   }
   public function updateMeal()
