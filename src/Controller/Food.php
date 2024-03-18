@@ -8,7 +8,10 @@ class Food
 {
   public function home()
   {
-    require_once('../src/views/admin/food/index.php');
+    //require_once('../src/views/admin/food/index.php');
+    $productModel = new FoodModel();
+    $results = $productModel->getRecipes();
+    require_once('../src/views/admin/food/remove.php');
   }
   public function addMeal()
   {
@@ -16,20 +19,6 @@ class Food
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $productModel = new FoodModel();
       $errors = [];
-      /* $ingredientRecipes = array(
-        array(
-          'Nom' => 'terre',
-          'IngredientID' => '14'
-        ),
-        array(
-          'Nom' => 'roquette',
-          'IngredientID' => '12'
-        ),
-        array(
-          'Nom' => 'huile',
-          'IngredientID' => '31'
-        )
-      ); */
       $ingredientRecipes = [];
       $counter = 0;
       while (isset($_POST['ingredientRecipe_' . $counter])) {
@@ -92,9 +81,46 @@ class Food
 
   public function removeMeal()
   {
-    $productModel = new FoodModel();
-    $results = $productModel->getRecipes();
-    require_once('../src/views/admin/food/remove.php');
+    //$productModel = new FoodModel();
+    //$results = $productModel->getRecipes();
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      // Vérifier si l'ID de la recette est passé dans la requête POST
+      if (isset($_POST["id"])) {
+        // Récupérer l'ID de la recette à supprimer depuis la requête POST
+        $idRecipe = $_POST["id"];
+        $productModel = new FoodModel();
+        //$deleteRecipe = $productModel->removeRecipe($idRecipe);
+        $deleteRecipe = array(
+          'success' => true,
+          'message' => 'Le plat a été supprimée avec succès.'
+        );
+        echo json_encode($deleteRecipe);
+        die;
+        if ($deleteRecipe['success'] === true) {
+          $response = array(
+            'success' => true,
+            'message' => 'Le plat a été supprimée avec succès.'
+          );
+        } else {
+          $response = array(
+            'success' => false,
+            'message' => "La recette n'a pas été supprimée, veuillez réessayer."
+          );
+        }
+      } else {
+        $response = array(
+          'success' => false,
+          'message' => 'ID de recette manquant dans la requête POST.'
+        );
+      }
+
+      // Envoyer la réponse JSON
+      header('Content-Type: application/json');
+      echo json_encode($response);
+      exit;
+    }
+    //require_once('../src/views/admin/food/remove.php');
   }
   public function updateMeal()
   {

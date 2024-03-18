@@ -20,6 +20,7 @@ $router->add('/admin/food', 'Food@home');
 $router->add('/admin/food/ajouter', 'Food@addMeal');
 $router->add('/searchIngredient/{q}', 'Food@searchIngredient');
 $router->add('/admin/food/supprimer', 'Food@removeMeal');
+/* $router->add('/admin/food/supprimer/{id}', 'Index@home'); */
 $router->add('/admin/food/modifier', 'Food@updateMeal');
 
 

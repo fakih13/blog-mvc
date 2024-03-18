@@ -77,9 +77,11 @@ class FoodModel
       $success = $statement->fetchAll(\PDO::FETCH_ASSOC);
       if ($success) {
         $response['success'] = true;
+        $response['code'] = 200;
         $response['data'] = $success;
       } else {
-        throw new \Exception('Erreur lors de la récupération des données en base de données');
+        $response['code'] = 204;
+        throw new \Exception('no content');
       }
     } catch (\Exception $e) {
       $response['success'] = false;
@@ -222,22 +224,24 @@ class FoodModel
   public function removeRecipe($id)
   {
     try {
+      $response['success'] = false;
       $deleteAnInSql = "DELETE FROM `plat` WHERE PlatID = :PlatID";
       $connexion = $this->database->dbConnect();
       $statement = $connexion->prepare($deleteAnInSql);
       $statement->bindParam(':PlatID', $id);
+      $statement->execute();
 
       $affectedRows = $statement->rowCount();
 
       if ($affectedRows > 0) {
         $response['success'] = true;
-        $response['message'] = "Plat supprimée avec succès";
       } else {
         throw new \Exception('Erreur lors de la suppresion');
       }
     } catch (\Exception $e) {
       $response['message'] = $e->getMessage();
     }
+    return $response;
   }
   public function searchIngredient($name)
   {
