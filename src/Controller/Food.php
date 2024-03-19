@@ -137,20 +137,48 @@ class Food
     return;
   }
 
-  public function removeIngredient($id, $idIngredient)
+  /**
+   * Supprime un ingrédient d'un plat dans la base de données.
+   *
+   * Cette méthode est destinée à être appelée par une requête HTTP POST.
+   * Elle prend deux paramètres : l'identifiant du plat et l'identifiant de l'ingrédient à supprimer.
+   *
+   * @param string $id L'identifiant du plat.
+   * @param string $idIngredient L'identifiant de l'ingrédient à supprimer du plat.
+   * @return void Cette méthode renvoie une réponse JSON indiquant le succès ou l'échec de la suppression.
+   *              En cas de succès, elle renvoie également les détails de la suppression.
+   */
+  public function removeMealIngredient($id, $idIngredient)
   {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $queryId = urldecode($id);
       $queryidIngredient = urldecode($idIngredient);
-      $test = array(
-        'id' => $id,
-        'idIngredient' => $idIngredient
-      );
+
+      $productModel = new FoodModel();
+
+      // Appel de la fonction pour supprimer l'ingrédient du plat dans le modèle
+      $deleteFromSql = $productModel->removeIngredientFromRecipe($queryId, $queryidIngredient);
+
+      // Récupération du code de réponse HTTP
+      $httpResponseCode = http_response_code();
+
+      // Définition du type de contenu de la réponse comme JSON
       header('Content-Type: application/json');
-      echo json_encode($test);
-      return;
+
+      // Traitement de la réponse en fonction du code de réponse HTTP
+      if ($httpResponseCode === 200 && $deleteFromSql['success']) {
+        // La suppression a réussi, retourne le résultat de la suppression
+        echo json_encode($deleteFromSql);
+      } elseif ($httpResponseCode === 404) {
+        // Aucune entrée trouvée pour la suppression, retourne un message d'erreur approprié
+        echo json_encode(['success' => false, 'message' => 'Aucune entrée trouvée pour la suppression']);
+      } else {
+        // Retourne un message d'erreur générique pour les autres erreurs
+        echo json_encode(['success' => false, 'message' => 'Une erreur s\'est produite lors de la suppression de l\'ingrédient.']);
+      }
     } else {
-      echo "ok";
+      // Requête invalide, retourne un message d'erreur indiquant une méthode de requête non autorisée
+      echo json_encode(['success' => false, 'message' => 'Méthode de requête non autorisée.']);
     }
   }
 }

@@ -105,7 +105,7 @@ class FoodModel
       if ($success) {
         $response['success'] = true;
         $response['code'] = 200;
-        $response['recipe'] = $success[0];
+        $response['recipe'] = $success;
       } else {
         $response['code'] = 204;
         throw new \Exception('no content');
@@ -248,6 +248,41 @@ class FoodModel
 
     return $response;
   }
+  /**
+   * Supprime un ingrédient d'une recette dans la base de données.
+   *
+   * @param int $idRecipe L'identifiant de la recette.
+   * @param int $idIngredient L'identifiant de l'ingrédient à supprimer de la recette.
+   * @return array Un tableau contenant une indication sur le succès de l'opération
+   *               et éventuellement un message d'erreur en cas d'échec.
+   */
+  public function removeIngredientFromRecipe($idRecipe, $idIngredient)
+  {
+    try {
+      $deleteAnInSql = "DELETE FROM `platingredient` WHERE IngredientID = :idIngredient AND PlatId = :idRecipe;";
+      $connexion = $this->database->dbConnect();
+      $statement = $connexion->prepare($deleteAnInSql);
+      $statement->bindParam(':idRecipe', $idRecipe);
+      $statement->bindParam(':idIngredient', $idIngredient);
+      $statement->execute();
+      $affectedRows = $statement->rowCount();
+
+      if ($affectedRows > 0) {
+        // Renvoyer un code HTTP 200 (OK) et un message si la suppression réussit
+        http_response_code(200);
+        return ['success' => true, 'message' => "Ingrédient supprimé avec succès"];
+      } else {
+        // Renvoyer un code HTTP 404 (Non trouvé) et un message si aucune ligne n'a été affectée
+        http_response_code(404);
+        return ['success' => false, 'message' => 'Aucune entrée trouvée pour la suppression'];
+      }
+    } catch (\Exception $e) {
+      // Renvoyer un code HTTP 500 (Erreur interne du serveur) et un message d'erreur en cas d'exception
+      http_response_code(500);
+      return ['success' => false, 'message' => $e->getMessage()];
+    }
+  }
+
 
   public function removeRecipe($id)
   {

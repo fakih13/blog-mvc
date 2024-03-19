@@ -20,11 +20,11 @@ ob_start();
 <?php if (isset($results)) : ?>
   <form action="" method="post" class="d-flex flex-column w-50" id="myForm">
     <label for="Nom">Nom du plat</label>
-    <input type="text" name="Nom" id="Nom" value="<?= $results['recipe']['Nom'] ?>">
+    <input type="text" name="Nom" id="Nom" value="<?= $results['recipe'][0]['Nom'] ?>">
     <label for="Prix">Prix</label>
-    <input type="number" step="0.01" name="Prix" id="Prix" value="<?= $results['recipe']['Prix'] ?>">
+    <input type="number" step="0.01" name="Prix" id="Prix" value="<?= $results['recipe'][0]['Prix'] ?>">
     <label for="Description">Description</label>
-    <textarea name="Description" id="Description" cols="30" rows="10"><?= $results['recipe']['Description'] ?></textarea>
+    <textarea name="Description" id="Description" cols="30" rows="10"><?= $results['recipe'][0]['Description'] ?></textarea>
     <label for="ingredient">Ingrédient</label>
     <input type="text" name="ingredientSearch" id="ingredientSearch">
     <div id="resultSearch"></div>

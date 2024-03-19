@@ -7,7 +7,7 @@ ob_start();
 
 <?php if (isset($results)) : ?>
   <?php if ($results['code'] === 200) : ?>
-    <?php foreach ($results['data'] as $result) : ?>
+    <?php foreach ($results['recipe'] as $result) : ?>
       <div class="d-flex my-2">
         <input type="hidden" name="idRecipe" value="<?= $result['PlatID'] ?>">
         <p class="mx-2 nomRecipe"><?= $result['Nom'] ?></p>

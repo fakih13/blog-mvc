@@ -17,9 +17,34 @@ btnIngredients.forEach((btn) => {
       if (!response.ok) {
         throw new Error("La suppression a échoué.");
       }
-      console.log(response);
+
       const data = await response.json();
-      console.log(data);
+
+      if (data.success) {
+        // Créer la bannière d'alerte Bootstrap
+        const alertBanner = document.createElement("div");
+        alertBanner.classList.add(
+          "alert",
+          "alert-success",
+          "alert-dismissible",
+          "fade",
+          "show"
+        );
+        alertBanner.setAttribute("role", "alert");
+        alertBanner.innerHTML = `
+          L'ingrédient a été supprimé.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+
+        // Insérer la bannière d'alerte au début de la balise main
+        const formElement = btn.closest("form");
+        formElement.insertBefore(alertBanner, formElement.firstChild);
+
+        // Supprimer le parent du bouton du DOM
+        btn.parentNode.remove();
+      } else {
+        console.error("La suppression a échoué.");
+      }
     } catch (error) {
       console.error("Une erreur s'est produite :", error.message);
     }
