@@ -31,7 +31,7 @@ ob_start();
   <div id="containerIngredient"></div>
   <button type="submit" class="mt-3">Ajouter</button>
 </form>
-<script src="../../src/views/admin/js/search.js"></script>
+<script src="../../src/views/admin/food/js/search.js"></script>
 
 <?php
 

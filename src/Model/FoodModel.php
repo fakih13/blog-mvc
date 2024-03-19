@@ -67,18 +67,45 @@ class FoodModel
    * 
    * @return array|false Un tableau contenant les recettes si des recettes sont trouvées, sinon false.
    */
-  public function getRecipes()
+  public function getRecipes($id = null)
   {
     try {
       $connexion = $this->database->dbConnect();
-      $savingMealInSql = "SELECT * FROM `plat`";
-      $statement = $connexion->prepare($savingMealInSql);
-      $statement->execute();
-      $success = $statement->fetchAll(\PDO::FETCH_ASSOC);
+      if ($id !== null) {
+        $getMealInSql = "SELECT * FROM `plat` WHERE PlatID = :id";
+        $statement = $connexion->prepare($getMealInSql);
+        $statement->bindParam(':id', $id);
+        $statement->execute();
+        $success = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        if ($success) {
+          $getIngredientInSql = "SELECT i.Nom, i.IngredientID
+          FROM ingredient i
+          JOIN platingredient pi ON i.IngredientID = pi.IngredientId
+          WHERE pi.PlatId = :id;
+          ";
+          $stmt = $connexion->prepare($getIngredientInSql);
+          $stmt->bindParam(':id', $id);
+          $stmt->execute();
+          $ingredient = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+          if ($ingredient) {
+            $response['ingredient'] = $ingredient;
+            $response['id'] = $id;
+          } else {
+            throw new \Exception('no content');
+            $response['code'] = 500;
+          }
+        }
+      } else {
+        $getMealInSql = "SELECT * FROM `plat`";
+        $statement = $connexion->prepare($getMealInSql);
+        $statement->execute();
+        $success = $statement->fetchAll(\PDO::FETCH_ASSOC);
+      }
+
       if ($success) {
         $response['success'] = true;
         $response['code'] = 200;
-        $response['data'] = $success;
+        $response['recipe'] = $success[0];
       } else {
         $response['code'] = 204;
         throw new \Exception('no content');
@@ -90,6 +117,7 @@ class FoodModel
 
     return $response;
   }
+
   /**
    * @param array $postData
    * @return boolean  

@@ -11,7 +11,7 @@ class Food
     //require_once('../src/views/admin/food/index.php');
     $productModel = new FoodModel();
     $results = $productModel->getRecipes();
-    require_once('../src/views/admin/food/remove.php');
+    require_once('../src/views/admin/food/index.php');
   }
   public function addMeal()
   {
@@ -72,7 +72,7 @@ class Food
       $postdata['Ingredients'] = $ingredientRecipes;
       $addRecipe = $productModel->setRecipe($postdata);
       if ($addRecipe['success'] === true) {
-        echo $addRecipe['message'];
+        header('location: /admin/food');
       }
     }
     require_once('../src/views/admin/food/add.php');
@@ -87,31 +87,24 @@ class Food
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
       // Vérifier si l'ID de la recette est passé dans la requête POST
       if (isset($_POST["id"])) {
-        // Récupérer l'ID de la recette à supprimer depuis la requête POST
         $idRecipe = $_POST["id"];
         $productModel = new FoodModel();
-        //$deleteRecipe = $productModel->removeRecipe($idRecipe);
-        $deleteRecipe = array(
-          'success' => true,
-          'message' => 'Le plat a été supprimée avec succès.'
-        );
-        echo json_encode($deleteRecipe);
-        die;
+        $deleteRecipe = $productModel->removeRecipe($idRecipe);
         if ($deleteRecipe['success'] === true) {
           $response = array(
             'success' => true,
-            'message' => 'Le plat a été supprimée avec succès.'
+            'message' => 'Le plat a été supprimé avec succès.'
           );
         } else {
           $response = array(
             'success' => false,
-            'message' => "La recette n'a pas été supprimée, veuillez réessayer."
+            'message' => "Le plat n'a pas été supprimé, veuillez réessayer."
           );
         }
       } else {
         $response = array(
           'success' => false,
-          'message' => 'ID de recette manquant dans la requête POST.'
+          'message' => 'ID de plat manquant dans la requête POST.'
         );
       }
 
@@ -119,11 +112,15 @@ class Food
       header('Content-Type: application/json');
       echo json_encode($response);
       exit;
+    } else {
+      header('location: /admin/food');
     }
-    //require_once('../src/views/admin/food/remove.php');
   }
-  public function updateMeal()
+  public function updateMeal($id)
   {
+    $query = urldecode($id);
+    $productModel = new FoodModel();
+    $results = $productModel->getRecipes($id);
     require_once('../src/views/admin/food/update.php');
   }
   public function searchIngredient($q)
@@ -138,5 +135,22 @@ class Food
     }
     echo json_encode([]);
     return;
+  }
+
+  public function removeIngredient($id, $idIngredient)
+  {
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      $queryId = urldecode($id);
+      $queryidIngredient = urldecode($idIngredient);
+      $test = array(
+        'id' => $id,
+        'idIngredient' => $idIngredient
+      );
+      header('Content-Type: application/json');
+      echo json_encode($test);
+      return;
+    } else {
+      echo "ok";
+    }
   }
 }

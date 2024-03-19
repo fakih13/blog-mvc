@@ -15,24 +15,23 @@ removeRecipe.forEach((recipe) => {
       "Êtes-vous sur de vouloir supprimer " +
       childElement.textContent +
       " de la carte";
-    console.log(idRecipe);
     deleteButtonModal.dataset.id = idRecipe;
   });
 });
 
 // Ajoutez un écouteur d'événements pour le bouton de suppression dans la modale
-/* deleteButtonModal.addEventListener("click", () => {
-  let idRecipe = deleteButtonModal.dataset.id;
-  window.location.href = "supprimer/" + idRecipe;
-}); */
 
 deleteButtonModal.addEventListener("click", () => {
+  let alertDelete = document.getElementById("alertDelete");
   let idRecipe = deleteButtonModal.dataset.id;
   let modalFooter = document.getElementById("modalFooter");
   let btnCancel = document.getElementById("btnCancel");
 
   deleteButtonModal?.setAttribute("hidden", "");
   btnCancel.setAttribute("hidden", "");
+  if (alertDelete !== null) {
+    alertDelete.remove();
+  }
 
   let spinner = document.createElement("div");
   spinner.setAttribute("class", "spinner-border");
@@ -55,24 +54,35 @@ deleteButtonModal.addEventListener("click", () => {
   // Gestionnaire d'événement pour le chargement de la réponse
   xhr.onload = function () {
     if (xhr.status === 200) {
-      // La suppression a réussi, vous pouvez gérer la réponse ici si nécessaire
       let response = JSON.parse(xhr.responseText);
-      response.success = false;
+      let alert = document.createElement("div");
+
+      alert.setAttribute("role", "alert");
+      alert.setAttribute("id", "alertDelete");
       if (response.success == true) {
+        alert.setAttribute("class", "alert alert-success m-2");
+        alert.textContent = "plat supprimé de la carte";
+
         setTimeout(function () {
-          location.reload();
-        }, 12000);
+          modalFooter?.insertAdjacentElement("afterend", alert);
+          spinner.remove();
+          setTimeout(function () {
+            location.reload();
+          }, 1000);
+        }, 1000);
       } else {
+        alert.setAttribute("class", "alert alert-danger m-2");
+
+        alert.textContent = "erreur lors de la suppresion veuillez réesayer";
+
         setTimeout(function () {
+          modalFooter?.insertAdjacentElement("afterend", alert);
           deleteButtonModal?.removeAttribute("hidden");
           btnCancel?.removeAttribute("hidden");
           spinner.remove();
         }, 2000);
       }
-
-      console.log(response.success);
-      // Recharger la page ou effectuer d'autres actions si nécessaire
-      //location.reload();
+      //console.log(response.success);
     } else {
       // La suppression a échoué, gérer l'erreur ici
       console.error("Erreur lors de la suppression de l'élément.");
@@ -90,6 +100,10 @@ deleteButtonModal.addEventListener("click", () => {
 
 // Vider le contenu de modalBody lorsque la modale est fermée
 deleteModal.addEventListener("hidden.bs.modal", function (event) {
+  let alertDelete = document.getElementById("alertDelete");
   modalBody.textContent = "";
   deleteButtonModal.dataset.id = "";
+  if (alertDelete !== null) {
+    alertDelete.remove();
+  }
 });
