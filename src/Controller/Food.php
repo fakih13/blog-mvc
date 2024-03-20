@@ -116,8 +116,71 @@ class Food
       header('location: /admin/food');
     }
   }
+
+
+  private function IngredientInSQL($ingredientPostValue, $ingredientRecipes)
+  {
+    $productModel = new FoodModel();
+
+
+    $ingredient = array(
+      'Nom' => $ingredientPostValue,
+      'IngredientID' => null // Initialiser IngredientID à null
+    );
+    $ingredientRecipes[] = $ingredient;
+
+
+    $result = $productModel->searchIngredient($ingredient['Nom']);
+    if (!empty($result)) {
+      foreach ($result as $item) {
+        $ingredient['IngredientID'] = $item['IngredientID'];
+        return $ingredientRecipes;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  private function RegisteringAnIngredientInSQL($ingredientPostValue, $ingredientRecipes)
+  {
+    $productModel = new FoodModel();
+    if (!empty($newIngredients)) {
+
+      $registerAnIngredient = $productModel->setIngredient($ingredientPostValue);
+      if ($registerAnIngredient['success'] !== true) {
+        $errors[] = $registerAnIngredient['message'];
+        return;
+      } else {
+        $ingredient = array(
+          'Nom' => $ingredientPostValue,
+          'IngredientID' => null // Initialiser IngredientID à null
+        );
+        $ingredient['IngredientID'] = $registerAnIngredient['ingredientId'];
+        $ingredientRecipes[] = $ingredient;
+        return $ingredientRecipes;
+      }
+    }
+  }
+
+
   public function updateMeal($id)
   {
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      $counter = 0;
+      $ingredientinRecipes = [];
+      while (isset($_POST['ingredientRecipe_' . $counter])) {
+        $ingredientSQL = $this->IngredientInSQL($_POST['ingredientRecipe_' . $counter], $ingredientinRecipes);
+        if ($ingredientSQL === false) {
+          $this->RegisteringAnIngredientInSQL($_POST['ingredientRecipe_' . $counter], $ingredientinRecipes);
+        }
+        $counter++;
+      }
+
+
+      header('Content-Type: application/json');
+      echo json_encode($ingredientinRecipes);
+      return;
+    }
     $query = urldecode($id);
     $productModel = new FoodModel();
     $results = $productModel->getRecipes($id);

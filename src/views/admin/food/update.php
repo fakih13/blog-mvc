@@ -17,8 +17,9 @@ ob_start();
 <?php endif; ?>
 
 
-<?php if (isset($results)) : ?>
+<?php if (isset($results)) /* var_dump($results) */ : ?>
   <form action="" method="post" class="d-flex flex-column w-50" id="myForm">
+    <input type="hidden" name="idRecipe" id="idRecipe" value="<?= $results['id'] ?>">
     <label for="Nom">Nom du plat</label>
     <input type="text" name="Nom" id="Nom" value="<?= $results['recipe'][0]['Nom'] ?>">
     <label for="Prix">Prix</label>
@@ -26,17 +27,17 @@ ob_start();
     <label for="Description">Description</label>
     <textarea name="Description" id="Description" cols="30" rows="10"><?= $results['recipe'][0]['Description'] ?></textarea>
     <label for="ingredient">Ingrédient</label>
-    <input type="text" name="ingredientSearch" id="ingredientSearch">
+    <input type="text" id="ingredientSearch">
     <div id="resultSearch"></div>
     <div id="containerIngredient">
       <?php foreach ($results['ingredient'] as $ingredient) : ?>
         <div class="d-flex my-2">
-          <input type="text" class="mx-2" name="ingredientRecipe_<?= $ingredient['IngredientID'] ?>" id="<?= $ingredient['IngredientID'] ?>" value="<?= $ingredient['Nom'] ?>" readonly>
-          <button class="btn btn-danger btnIngredient" data-ingredient="<?= $ingredient['IngredientID'] ?>" data-recipe="<?= $results['id'] ?>">x</button>
+          <input type="text" class="mx-2 ingredientRecipes" name="ingredientRecipe_<?= $ingredient['IngredientID'] ?>" id="<?= $ingredient['IngredientID'] ?>" value="<?= $ingredient['Nom'] ?>" data-existingIngredientInSql="true" readonly>
+          <button class="btn btn-danger btnIngredient" data-idIngredient="<?= $ingredient['IngredientID'] ?>" data-recipe="<?= $results['id'] ?>">x</button>
         </div>
       <?php endforeach ?>
     </div>
-    <button type="submit" class="mt-3">Modifier</button>
+    <button type="submit" class="mt-3" id="btnUpdate">Modifier</button>
   </form>
 <?php endif ?>
 <script src="/../../src/views/admin/food/js/search.js"></script>

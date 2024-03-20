@@ -1,9 +1,11 @@
 const btnIngredients = document.querySelectorAll(".btnIngredient");
 
+const btnUpdate = document.getElementById("btnUpdate");
+
 btnIngredients.forEach((btn) => {
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
-    const idIngredient = btn.dataset.ingredient;
+    const idIngredient = btn.dataset.idIngredient;
     const id = btn.dataset.recipe;
 
     try {
@@ -49,4 +51,38 @@ btnIngredients.forEach((btn) => {
       console.error("Une erreur s'est produite :", error.message);
     }
   });
+});
+
+const idRecipe = document.getElementById("idRecipe");
+
+btnUpdate.addEventListener("click", async (e) => {
+  e.preventDefault();
+  const formData = new FormData(document.getElementById("myForm"));
+  const excludeFields = document.querySelectorAll(
+    '[data-existingIngredientInSql="true"]'
+  );
+  excludeFields.forEach((field) => {
+    // Récupérer le nom du champ
+    const fieldName = field.getAttribute("name");
+    // Supprimer le champ du formData
+    formData.delete(fieldName);
+  });
+  try {
+    const response = await fetch(`updateRecipe/${idRecipe}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error("La modification a échoué.");
+    }
+
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error("Une erreur s'est produite :", error.message);
+  }
 });

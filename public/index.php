@@ -21,6 +21,7 @@ $router->add('/admin/food/ajouter', 'Food@addMeal');
 $router->add('/searchIngredient/{q}', 'Food@searchIngredient');
 $router->add('/admin/food/supprimer', 'Food@removeMeal');
 $router->add('/admin/food/update/{id}', 'Food@updateMeal');
+$router->add('/admin/food/update/updateRecipe/{id}', 'Food@updateMeal');
 $router->add('/admin/food/update/{id}/removeIngredient/{idIngredient}', 'Food@removeMealIngredient');
 /* $router->add('/admin/food/supprimer/{id}', 'Index@home'); */
 $router->add('/admin/food/modifier', 'Food@updateMeal');
