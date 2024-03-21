@@ -18,8 +18,9 @@ ob_start();
 
 
 <?php if (isset($results)) /* var_dump($results) */ : ?>
+  <?= var_dump($results['recipe'][0]) ?>
   <form action="" method="post" class="d-flex flex-column w-50" id="myForm">
-    <input type="hidden" name="idRecipe" id="idRecipe" value="<?= $results['id'] ?>">
+    <input type="hidden" name="PlatID" id="idRecipe" value="<?= $results['id'] ?>">
     <label for="Nom">Nom du plat</label>
     <input type="text" name="Nom" id="Nom" value="<?= $results['recipe'][0]['Nom'] ?>">
     <label for="Prix">Prix</label>
@@ -33,7 +34,7 @@ ob_start();
       <?php foreach ($results['ingredient'] as $ingredient) : ?>
         <div class="d-flex my-2">
           <input type="text" class="mx-2 ingredientRecipes" name="ingredientRecipe_<?= $ingredient['IngredientID'] ?>" id="<?= $ingredient['IngredientID'] ?>" value="<?= $ingredient['Nom'] ?>" data-existingIngredientInSql="true" readonly>
-          <button class="btn btn-danger btnIngredient" data-idIngredient="<?= $ingredient['IngredientID'] ?>" data-recipe="<?= $results['id'] ?>">x</button>
+          <button class="btn btn-danger btnIngredient" data-recipe="<?= $results['id'] ?>" data-idingredient="<?= $ingredient['IngredientID'] ?>">x</button>
         </div>
       <?php endforeach ?>
     </div>

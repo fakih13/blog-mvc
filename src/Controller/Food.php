@@ -118,7 +118,7 @@ class Food
   }
 
 
-  private function IngredientInSQL($ingredientPostValue, $ingredientRecipes)
+  private function IngredientInSQL($ingredientPostValue)
   {
     $productModel = new FoodModel();
 
@@ -127,64 +127,110 @@ class Food
       'Nom' => $ingredientPostValue,
       'IngredientID' => null // Initialiser IngredientID à null
     );
-    $ingredientRecipes[] = $ingredient;
 
 
     $result = $productModel->searchIngredient($ingredient['Nom']);
     if (!empty($result)) {
       foreach ($result as $item) {
         $ingredient['IngredientID'] = $item['IngredientID'];
-        return $ingredientRecipes;
+        return $ingredient;
       }
     } else {
       return false;
     }
   }
 
-  private function RegisteringAnIngredientInSQL($ingredientPostValue, $ingredientRecipes)
+  private function RegisteringAnIngredientInSQL($ingredientPostValue)
   {
     $productModel = new FoodModel();
-    if (!empty($newIngredients)) {
 
-      $registerAnIngredient = $productModel->setIngredient($ingredientPostValue);
-      if ($registerAnIngredient['success'] !== true) {
-        $errors[] = $registerAnIngredient['message'];
-        return;
-      } else {
-        $ingredient = array(
-          'Nom' => $ingredientPostValue,
-          'IngredientID' => null // Initialiser IngredientID à null
-        );
-        $ingredient['IngredientID'] = $registerAnIngredient['ingredientId'];
-        $ingredientRecipes[] = $ingredient;
-        return $ingredientRecipes;
-      }
+    $ingredient = array(
+      'Nom' => $ingredientPostValue,
+      'IngredientID' => null // Initialiser IngredientID à null
+    );
+    $registerAnIngredient = $productModel->setIngredient($ingredientPostValue);
+    if ($registerAnIngredient['success'] !== true) {
+      throw new \Exception($registerAnIngredient['message']);
+      return;
+    } else {
+      $ingredient['IngredientID'] = $registerAnIngredient['ingredientId'];
+      return $ingredient;
     }
   }
 
 
-  public function updateMeal($id)
+  public function displayMealUpdateView($id)
   {
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-      $counter = 0;
-      $ingredientinRecipes = [];
-      while (isset($_POST['ingredientRecipe_' . $counter])) {
-        $ingredientSQL = $this->IngredientInSQL($_POST['ingredientRecipe_' . $counter], $ingredientinRecipes);
-        if ($ingredientSQL === false) {
-          $this->RegisteringAnIngredientInSQL($_POST['ingredientRecipe_' . $counter], $ingredientinRecipes);
-        }
-        $counter++;
-      }
-
-
-      header('Content-Type: application/json');
-      echo json_encode($ingredientinRecipes);
-      return;
-    }
-    $query = urldecode($id);
     $productModel = new FoodModel();
+    $query = urldecode($id);
     $results = $productModel->getRecipes($id);
     require_once('../src/views/admin/food/update.php');
+  }
+
+  public function updateMealInDatabase()
+  {
+    $productModel = new FoodModel();
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      try {
+        $ingredientinRecipes = [];
+        foreach ($_POST as $key => $value) {
+          if (strpos($key, 'ingredientRecipe_') === 0) {
+            $ingredientSQL = $this->IngredientInSQL($value);
+            if ($ingredientSQL === false) {
+              $newIngredientSQL = $this->RegisteringAnIngredientInSQL($value, $ingredientinRecipes);
+              $ingredientinRecipes[] = $newIngredientSQL;
+            } else {
+              $ingredientinRecipes[] = $ingredientSQL;
+            }
+          }
+        }
+
+        $recipeID = $_POST['PlatID'];
+
+        if (!empty($ingredientinRecipes)) {
+          $newIngredientRecipes = $productModel->newIngredientRecipes($ingredientinRecipes, $recipeID);
+        }
+
+        $postData['Nom'] = $_POST['Nom'];
+        $postData['Description'] = $_POST['Description'];
+        $postData['Prix'] = $_POST['Prix'];
+
+
+        $existingRecipeData = $productModel->getRecipes($recipeID);
+        if ($existingRecipeData['success'] === false) {
+          throw new \Exception($existingRecipeData['message']);
+        }
+
+        // Initialiser un tableau pour stocker les données modifiées
+        $modifiedData = array();
+
+        // Parcourir les nouvelles données fournies par l'utilisateur
+        foreach ($postData as $key => $value) {
+          // Vérifier si la valeur est différente de celle existante dans les données de la base de données
+          if (isset($existingRecipeData['recipe'][0][$key]) && $existingRecipeData['recipe'][0][$key] !== $value) {
+            // Ajouter la paire clé-valeur modifiée au tableau des données modifiées
+            $modifiedData[$key] = $value;
+          }
+        }
+
+        header('Content-Type: application/json');
+        // Mettre à jour le plat dans la base de données en utilisant seulement les données modifiées
+        if (!empty($modifiedData)) {
+          $response = $productModel->updateRecipe($recipeID, $modifiedData);
+          if ($response['success'] === true) {
+            echo json_encode($response['message']);
+            return;
+          } else {
+            throw new \Exception($response['message']);
+          }
+        } else {
+        }
+      } catch (\Exception $e) {
+        $response['message'] = $e->getMessage();
+        echo json_encode($response);
+        return;
+      }
+    }
   }
   public function searchIngredient($q)
   {

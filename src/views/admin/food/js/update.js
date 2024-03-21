@@ -5,16 +5,22 @@ const btnUpdate = document.getElementById("btnUpdate");
 btnIngredients.forEach((btn) => {
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
-    const idIngredient = btn.dataset.idIngredient;
-    const id = btn.dataset.recipe;
+    const idIngredient = btn.dataset.idingredient;
+    const idRecipe = btn.dataset.recipe;
+
+    console.log(idIngredient);
+    console.log(idRecipe);
 
     try {
-      const response = await fetch(`${id}/removeIngredient/${idIngredient}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
+      const response = await fetch(
+        `../removeIngredient/${idRecipe}/${idIngredient}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("La suppression a échoué.");
@@ -67,8 +73,9 @@ btnUpdate.addEventListener("click", async (e) => {
     // Supprimer le champ du formData
     formData.delete(fieldName);
   });
+  console.log(formData);
   try {
-    const response = await fetch(`updateRecipe/${idRecipe}`, {
+    const response = await fetch(`../database/${idRecipe}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",

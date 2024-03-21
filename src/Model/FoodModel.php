@@ -144,21 +144,7 @@ class FoodModel
           // Récupérer l'identifiant du dernier enregistrement inséré
           $platID = $connexion->lastInsertId();
 
-          // Boucle pour ajouter les PlatID et IngredientID dans platIngredient
-          foreach ($postData['Ingredients'] as $ingredient) {
-            $addIngredientQuery = "INSERT INTO `platingredient`(`PlatID`, `IngredientID`) VALUES (:PlatID, :IngredientID)";
-            $addIngredientStatement = $connexion->prepare($addIngredientQuery);
-
-            $addIngredientStatement->bindParam(':PlatID', $platID);
-            $addIngredientStatement->bindParam(':IngredientID', $ingredient['IngredientID']);
-
-            $addIngredientStatement->execute();
-
-            // Vérifier si l'insertion a échoué
-            if ($addIngredientStatement->rowCount() <= 0) {
-              throw new \Exception('Erreur lors de l\'enregistrement des ingrédients');
-            }
-          }
+          $saveIngredientInRecipes = $this->newIngredientRecipes($postData['Ingredients'], $platID);
 
           // Si tout s'est bien passé, valide la transaction
           $connexion->commit();
@@ -181,73 +167,84 @@ class FoodModel
 
     return $response;
   }
-
-  public function updateRecipe($recipeID, $postData)
+  public function newIngredientRecipes($getIngredientInRecipes, $platID)
   {
+    $connexion = $this->database->dbConnect();
+    foreach ($getIngredientInRecipes as $ingredient) {
+      $addIngredientQuery = "INSERT INTO `platingredient`(`PlatID`, `IngredientID`) VALUES (:PlatID, :IngredientID)";
+      $addIngredientStatement = $connexion->prepare($addIngredientQuery);
+
+      $addIngredientStatement->bindParam(':PlatID', $platID);
+      $addIngredientStatement->bindParam(':IngredientID', $ingredient['IngredientID']);
+
+      $addIngredientStatement->execute();
+
+      // Vérifier si l'insertion a échoué
+      if ($addIngredientStatement->rowCount() <= 0) {
+        throw new \Exception('Erreur lors de l\'enregistrement des ingrédients');
+      } else {
+        return true;
+      }
+    }
+  }
+  public function updateRecipe($recipeID, $modifiedData)
+  {
+    $response = array();
+
     try {
       $connexion = $this->database->dbConnect();
-      $connexion->beginTransaction(); // Début de la transaction
 
-      // Mettre à jour les informations principales du plat
-      $updateMealInSql = "UPDATE `plat` SET `Nom` = :Nom, `Prix` = :Prix, `Description` = :Description WHERE `PlatID` = :PlatID";
-      $updateStatement = $connexion->prepare($updateMealInSql);
+      // Début de la transaction
+      $connexion->beginTransaction();
 
-      $updateStatement->bindParam(':PlatID', $recipeID);
-      $updateStatement->bindParam(':Nom', $postData['Nom']);
-      $updateStatement->bindParam(':Description', $postData['Description']);
-      $updateStatement->bindParam(':Prix', $postData['Prix']);
+      try {
+        // Construction de la requête de mise à jour
+        $updateMealSql = "UPDATE `plat` SET ";
+        $updateValues = array();
 
-      $updateStatement->execute();
-
-      // Vérifier si la mise à jour principale a réussi
-      if ($updateStatement->rowCount() > 0) {
-
-        // Supprimer les anciens ingrédients liés au plat si nécessaire
-        if (isset($postData['DeletedIngredients']) && is_array($postData['DeletedIngredients']) && !empty($postData['DeletedIngredients'])) {
-          foreach ($postData['DeletedIngredients'] as $deletedIngredientID) {
-            $deleteIngredientSql = "DELETE FROM `platingredient` WHERE `PlatID` = :PlatID AND `IngredientID` = :IngredientID";
-            $deleteIngredientStatement = $connexion->prepare($deleteIngredientSql);
-            $deleteIngredientStatement->bindParam(':PlatID', $recipeID);
-            $deleteIngredientStatement->bindParam(':IngredientID', $deletedIngredientID);
-            $deleteIngredientStatement->execute();
-          }
+        foreach ($modifiedData as $key => $value) {
+          // Ajouter chaque champ modifié à la requête de mise à jour
+          $updateMealSql .= "`$key` = :$key, ";
+          $updateValues[":$key"] = $value;
         }
 
-        // Ajouter les nouveaux ingrédients liés au plat si nécessaire
-        if (isset($postData['AddedIngredients']) && is_array($postData['AddedIngredients']) && !empty($postData['AddedIngredients'])) {
-          foreach ($postData['AddedIngredients'] as $ingredientID) {
-            $addIngredientQuery = "INSERT INTO `platingredient`(`PlatID`, `IngredientID`) VALUES (:PlatID, :IngredientID)";
-            $addIngredientStatement = $connexion->prepare($addIngredientQuery);
+        // Supprimer la virgule et l'espace en trop à la fin de la requête
+        $updateMealSql = rtrim($updateMealSql, ', ');
 
-            $addIngredientStatement->bindParam(':PlatID', $recipeID);
-            $addIngredientStatement->bindParam(':IngredientID', $ingredientID);
+        // Ajouter la clause WHERE
+        $updateMealSql .= " WHERE `PlatID` = :PlatID";
+        $updateValues[':PlatID'] = $recipeID;
 
-            $addIngredientStatement->execute();
+        // Préparation de la requête
+        $updateStatement = $connexion->prepare($updateMealSql);
 
-            // Vérifier si l'insertion a échoué
-            if ($addIngredientStatement->rowCount() <= 0) {
-              throw new \Exception('Erreur lors de la mise à jour des ingrédients');
-            }
-          }
+        // Liaison des valeurs
+        foreach ($updateValues as $key => &$value) {
+          $updateStatement->bindParam($key, $value);
         }
 
-        // Valider la transaction
+        // Exécution de la requête
+        $updateStatement->execute();
+
+        // Si la mise à jour a réussi, valider la transaction
         $connexion->commit();
 
         $response['success'] = true;
         $response['message'] = 'Mise à jour réussie';
-      } else {
-        throw new \Exception('Erreur lors de la mise à jour du plat');
+      } catch (\Exception $e) {
+        // En cas d'erreur, annuler la transaction et renvoyer l'erreur
+        $connexion->rollBack();
+        $response['success'] = false;
+        $response['message'] = $e->getMessage();
       }
     } catch (\Exception $e) {
-      // En cas d'erreur, annuler la transaction
-      $connexion->rollBack();
       $response['success'] = false;
       $response['message'] = $e->getMessage();
     }
 
     return $response;
   }
+
   /**
    * Supprime un ingrédient d'une recette dans la base de données.
    *
