@@ -2,8 +2,6 @@ let ingredientInput = document.getElementById("ingredientSearch");
 
 let resultSearch = document.getElementById("resultSearch");
 
-let ingredientsInContainer = document.querySelectorAll(".ingredientRecipes");
-
 let containerIngredient = document.getElementById("containerIngredient");
 
 const containerElement = document.getElementById("myForm");
@@ -16,9 +14,9 @@ ingredientInput.addEventListener("keypress", function (event) {
     if (ingredient.length > 0) {
       ingredientInput.value = "";
       resultSearch.style.display = "none";
+      console.log(ingredient);
       addIngredientToContainer(
         ingredient,
-        ingredientsInContainer,
         containerIngredient,
         containerElement
       );
@@ -55,7 +53,6 @@ function searchIngredientInSql(resultSearch, ingredientInput) {
             resultItem.addEventListener("click", function () {
               addIngredientToContainer(
                 item.Nom,
-                ingredientsInContainer,
                 containerIngredient,
                 containerElement
               );
@@ -79,10 +76,10 @@ let counter = 0; // Pour générer des noms uniques pour chaque champ d'ingrédi
 
 function addIngredientToContainer(
   newIngredient,
-  ingredientsInContainer,
   containerIngredient,
   containerElement
 ) {
+  let ingredientsInContainer = document.querySelectorAll(".ingredientRecipes");
   let isAlreadyAdded = false;
   ingredientsInContainer.forEach((ingredient) => {
     if (ingredient.value.toLowerCase() === newIngredient.toLowerCase()) {

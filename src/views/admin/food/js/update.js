@@ -59,7 +59,7 @@ btnIngredients.forEach((btn) => {
   });
 });
 
-const idRecipe = document.getElementById("idRecipe");
+const theIdRecipe = document.getElementById("idRecipe");
 
 btnUpdate.addEventListener("click", async (e) => {
   e.preventDefault();
@@ -73,9 +73,8 @@ btnUpdate.addEventListener("click", async (e) => {
     // Supprimer le champ du formData
     formData.delete(fieldName);
   });
-  console.log(formData);
   try {
-    const response = await fetch(`../database/${idRecipe}`, {
+    const response = await fetch(`../database/${theIdRecipe}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",

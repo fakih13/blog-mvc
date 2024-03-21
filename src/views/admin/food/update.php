@@ -20,7 +20,7 @@ ob_start();
 <?php if (isset($results)) /* var_dump($results) */ : ?>
   <?= var_dump($results['recipe'][0]) ?>
   <form action="" method="post" class="d-flex flex-column w-50" id="myForm">
-    <input type="hidden" name="PlatID" id="idRecipe" value="<?= $results['id'] ?>">
+    <input type="hidden" name="PlatID" id="idRecipe" value="<?= $results['recipe'][0]['PlatID'] ?>">
     <label for="Nom">Nom du plat</label>
     <input type="text" name="Nom" id="Nom" value="<?= $results['recipe'][0]['Nom'] ?>">
     <label for="Prix">Prix</label>

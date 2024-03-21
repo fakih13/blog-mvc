@@ -171,6 +171,7 @@ class Food
   {
     $productModel = new FoodModel();
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      $response = array();
       try {
         $ingredientinRecipes = [];
         foreach ($_POST as $key => $value) {
@@ -189,6 +190,11 @@ class Food
 
         if (!empty($ingredientinRecipes)) {
           $newIngredientRecipes = $productModel->newIngredientRecipes($ingredientinRecipes, $recipeID);
+          if ($newIngredientRecipes) {
+            $response['saveIngredient'] = true;
+          } else {
+            throw new \Exception($newIngredientRecipes['error']);
+          }
         }
 
         $postData['Nom'] = $_POST['Nom'];
@@ -213,23 +219,36 @@ class Food
           }
         }
 
-        header('Content-Type: application/json');
+        /* header('Content-Type: application/json');
+        echo json_encode($modifiedData);
+        return; */
+
         // Mettre à jour le plat dans la base de données en utilisant seulement les données modifiées
         if (!empty($modifiedData)) {
-          $response = $productModel->updateRecipe($recipeID, $modifiedData);
-          if ($response['success'] === true) {
-            echo json_encode($response['message']);
-            return;
+          $updateRecipe = $productModel->updateRecipe($recipeID, $modifiedData);
+          if ($updateRecipe['success'] !== true) {
+            throw new \Exception($updateRecipe['message']);
           } else {
-            throw new \Exception($response['message']);
+            $response['updateRecipe'] = true;
           }
         } else {
+          $response['emptyData'] = true;
         }
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        return;
       } catch (\Exception $e) {
+        header('Content-Type: application/json');
         $response['message'] = $e->getMessage();
         echo json_encode($response);
         return;
       }
+    } else {
+      header('Content-Type: application/json');
+      $response['error_code'] = http_response_code(400);
+      $response['message'] = 'Bad Request';
+      echo json_encode($response);
+      return;
     }
   }
   public function searchIngredient($q)
