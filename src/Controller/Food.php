@@ -167,90 +167,102 @@ class Food
     require_once('../src/views/admin/food/update.php');
   }
 
+  /**
+   * Met à jour un plat dans la base de données avec les données fournies par l'utilisateur.
+   * Cette fonction traite les requêtes HTTP POST et met à jour les informations du plat dans la base de données.
+   * Elle gère également l'ajout de nouveaux ingrédients associés au plat.
+   * 
+   * @return void
+   * 
+   * Cette fonction renvoie une réponse JSON avec les résultats de la mise à jour :
+   * - Si la mise à jour est réussie, elle renvoie un code de réponse HTTP 200 (OK) avec un objet JSON contenant les détails de la mise à jour.
+   * - Si une erreur survient lors de la mise à jour, elle renvoie un code de réponse HTTP 500 (Erreur interne du serveur) avec un objet JSON contenant un message d'erreur.
+   * - Si la méthode de requête HTTP n'est pas POST, elle renvoie un code de réponse HTTP 405 (Méthode non autorisée) avec un objet JSON contenant un message d'erreur indiquant que la méthode n'est pas autorisée.
+   */
   public function updateMealInDatabase()
   {
     $productModel = new FoodModel();
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-      $response = array();
-      try {
-        $ingredientinRecipes = [];
-        foreach ($_POST as $key => $value) {
-          if (strpos($key, 'ingredientRecipe_') === 0) {
-            $ingredientSQL = $this->IngredientInSQL($value);
-            if ($ingredientSQL === false) {
-              $newIngredientSQL = $this->RegisteringAnIngredientInSQL($value, $ingredientinRecipes);
-              $ingredientinRecipes[] = $newIngredientSQL;
-            } else {
-              $ingredientinRecipes[] = $ingredientSQL;
-            }
-          }
-        }
 
-        $recipeID = $_POST['PlatID'];
-
-        if (!empty($ingredientinRecipes)) {
-          $newIngredientRecipes = $productModel->newIngredientRecipes($ingredientinRecipes, $recipeID);
-          if ($newIngredientRecipes) {
-            $response['saveIngredient'] = true;
-          } else {
-            throw new \Exception($newIngredientRecipes['error']);
-          }
-        }
-
-        $postData['Nom'] = $_POST['Nom'];
-        $postData['Description'] = $_POST['Description'];
-        $postData['Prix'] = $_POST['Prix'];
-
-
-        $existingRecipeData = $productModel->getRecipes($recipeID);
-        if ($existingRecipeData['success'] === false) {
-          throw new \Exception($existingRecipeData['message']);
-        }
-
-        // Initialiser un tableau pour stocker les données modifiées
-        $modifiedData = array();
-
-        // Parcourir les nouvelles données fournies par l'utilisateur
-        foreach ($postData as $key => $value) {
-          // Vérifier si la valeur est différente de celle existante dans les données de la base de données
-          if (isset($existingRecipeData['recipe'][0][$key]) && $existingRecipeData['recipe'][0][$key] !== $value) {
-            // Ajouter la paire clé-valeur modifiée au tableau des données modifiées
-            $modifiedData[$key] = $value;
-          }
-        }
-
-        /* header('Content-Type: application/json');
-        echo json_encode($modifiedData);
-        return; */
-
-        // Mettre à jour le plat dans la base de données en utilisant seulement les données modifiées
-        if (!empty($modifiedData)) {
-          $updateRecipe = $productModel->updateRecipe($recipeID, $modifiedData);
-          if ($updateRecipe['success'] !== true) {
-            throw new \Exception($updateRecipe['message']);
-          } else {
-            $response['updateRecipe'] = true;
-          }
-        } else {
-          $response['emptyData'] = true;
-        }
-        header('Content-Type: application/json');
-        echo json_encode($response);
-        return;
-      } catch (\Exception $e) {
-        header('Content-Type: application/json');
-        $response['message'] = $e->getMessage();
-        echo json_encode($response);
-        return;
-      }
-    } else {
+    // Vérifier la méthode de la requête HTTP
+    if ($_SERVER["REQUEST_METHOD"] != "POST") {
+      // Méthode non autorisée
+      http_response_code(405); // Méthode non autorisée
       header('Content-Type: application/json');
-      $response['error_code'] = http_response_code(400);
-      $response['message'] = 'Bad Request';
-      echo json_encode($response);
+      echo json_encode(array("error" => "Method Not Allowed"));
       return;
     }
+
+    // Initialiser la réponse
+    $response = array();
+
+    try {
+      $ingredientinRecipes = [];
+
+      // Parcourir les données POST pour récupérer les ingrédients
+      foreach ($_POST as $key => $value) {
+        if (strpos($key, 'ingredientRecipe_') === 0) {
+          $ingredientSQL = $this->IngredientInSQL($value);
+          if ($ingredientSQL === false) {
+            $newIngredientSQL = $this->RegisteringAnIngredientInSQL($value, $ingredientinRecipes);
+            $ingredientinRecipes[] = $newIngredientSQL;
+          } else {
+            $ingredientinRecipes[] = $ingredientSQL;
+          }
+        }
+      }
+
+      // Récupérer l'identifiant de la recette
+      $recipeID = $_POST['PlatID'];
+
+      // Enregistrer les nouveaux ingrédients associés à la recette
+      if (!empty($ingredientinRecipes)) {
+        $newIngredientRecipes = $productModel->newIngredientRecipes($ingredientinRecipes, $recipeID);
+        if (!$newIngredientRecipes) {
+          throw new \Exception("Failed to save ingredients.");
+        }
+      }
+
+      // Récupérer les données de recette existantes
+      $existingRecipeData = $productModel->getRecipes($recipeID);
+      if (!$existingRecipeData['success']) {
+        throw new \Exception($existingRecipeData['message']);
+      }
+
+      // Initialiser un tableau pour stocker les données modifiées
+      $modifiedData = array();
+
+      // Parcourir les nouvelles données fournies par l'utilisateur
+      foreach ($_POST as $key => $value) {
+        if (array_key_exists($key, $existingRecipeData['recipe'][0]) && $existingRecipeData['recipe'][0][$key] !== $value) {
+          // Ajouter la paire clé-valeur modifiée au tableau des données modifiées
+          $modifiedData[$key] = $value;
+        }
+      }
+
+      // Mettre à jour la recette dans la base de données avec les données modifiées
+      if (!empty($modifiedData)) {
+        $updateRecipe = $productModel->updateRecipe($recipeID, $modifiedData);
+        if (!$updateRecipe['success']) {
+          throw new \Exception($updateRecipe['message']);
+        } else {
+          $response['updateRecipe'] = true;
+        }
+      } else {
+        $response['emptyData'] = true;
+      }
+
+      // Succès de la mise à jour
+      http_response_code(200);
+      header('Content-Type: application/json');
+      echo json_encode($response);
+    } catch (\Exception $e) {
+      // Erreur interne du serveur
+      http_response_code(500);
+      header('Content-Type: application/json');
+      echo json_encode(array("error" => $e->getMessage()));
+    }
   }
+
   public function searchIngredient($q)
   {
     $query = urldecode($q);
