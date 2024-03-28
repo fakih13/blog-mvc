@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Model\FoodModel;
+
 
 class Promotion
 {
@@ -32,5 +34,33 @@ class Promotion
   public function update($id)
   {
     $query = urldecode($id);
+  }
+
+  public function searchTarget($target, $q)
+  {
+    $target = urldecode($target);
+    $query = urldecode($q);
+
+
+    if (isset($_SESSION['ADMIN_EMAIL'])) {
+      /* $target !== "produit" || $target !== "categorie" */
+      if ($target !== "plat" && $target !== "categorie") {
+        http_response_code(400);
+        echo "Erreur 400 : Mauvaise requête ";
+      } else {
+        $productModel = new FoodModel();
+        $results = $productModel->searchTarget($target, $q);
+        header('Content-Type: application/json');
+        if ($results) {
+          echo json_encode($results);
+          return;
+        }
+        echo json_encode([]);
+        return;
+      }
+    } else {
+      http_response_code(400);
+      echo "Erreur 400 : Mauvaise requête";
+    }
   }
 }

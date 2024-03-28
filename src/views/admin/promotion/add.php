@@ -12,14 +12,16 @@ ob_start();
     <option value="code">code de réduction</option>
   </select>
 
-  <!-- si c'est code afficher -->
-  <!-- <input type="text" placeholder="code de réduction" id="couponCode" class="d-none"> -->
-  <!--  -->
-  <select name="target_type" id="taget_type">
+
+  <select name="target_type" id="tagetType">
     <option value="categorie">categorie</option>
-    <option value="produit">produit</option>
+    <option value="plat">plat</option>
   </select>
   <!-- ici mettre la liste pour choisir le produit ou la catégorie -->
+  <input type="text" name="targetSearch" id="targetSearch" placeholder="chercher">
+  <div id="resultContainer"></div>
+
+
   <div id="containerTargetChoice"></div>
   <!--  -->
 

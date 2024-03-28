@@ -325,4 +325,23 @@ class FoodModel
     }
     return $data;
   }
+
+  public function searchTarget($target, $q)
+  {
+    $request = false;
+    $data = [];
+    $sql = 'SELECT * FROM ' . $target . ' WHERE Nom LIKE :name';
+    $connexion = $this->database->dbConnect();
+    $statement = $connexion->prepare($sql);
+    $q = "%$q%";
+    $statement->bindParam(':name', $q);
+    $statement->execute();
+    $success = $statement->fetchAll(\PDO::FETCH_ASSOC);
+    if ($success) {
+      $request = true;
+      $data = $success;
+      return $data;
+    }
+    return $data;
+  }
 }

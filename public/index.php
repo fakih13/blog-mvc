@@ -29,6 +29,7 @@ $router->add('/admin/food/update/removeIngredient/{idRecipe}/{idIngredient}', 'F
 
 /* Promotion */
 
+$router->add('/admin/promotion/searchTarget/{target}/{q}', 'Promotion@searchTarget');
 $router->add('/admin/promotion', 'Promotion@display');
 $router->add('/admin/promotion/current', 'Promotion@display');
 $router->add('/admin/promotion/add', 'Promotion@add');
