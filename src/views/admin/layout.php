@@ -66,7 +66,7 @@
                         </a>
                         <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                             <li class="sidebar-item">
-                                <a href="/admin/promotion/add" class="sidebar-link">Ajouter</a>
+                                <a href="/admin/promotion/add/view" class="sidebar-link">Ajouter</a>
                             </li>
                             <li class="sidebar-item">
                                 <a href="/admin/promotion/current" class="sidebar-link">En cours</a>

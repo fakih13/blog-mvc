@@ -14,7 +14,9 @@ class Router
     public function dispatch($url)
     {
         session_start(); // Assurez-vous que la session est démarrée
-
+        $_SESSION['ADMIN_EMAIL'] = 'madi.bch@gmail.com';
+        $_SESSION['ADMIN_FIRSTNAME'] = 'madi';
+        $_SESSION['ADMIN_LASTNAME'] = 'fakih';
         foreach ($this->routes as $route => $action) {
             $routePattern = "#^" . preg_replace('/\{([\w]+)\}/', '([^/]+)', $route) . "$#";
             if (preg_match($routePattern, $url, $matches)) {

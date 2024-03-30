@@ -29,12 +29,13 @@ $router->add('/admin/food/update/removeIngredient/{idRecipe}/{idIngredient}', 'F
 
 /* Promotion */
 
-$router->add('/admin/promotion/searchTarget/{target}/{q}', 'Promotion@searchTarget');
-$router->add('/admin/promotion', 'Promotion@display');
-$router->add('/admin/promotion/current', 'Promotion@display');
-$router->add('/admin/promotion/add', 'Promotion@add');
+$router->add('/admin/promotion/searchTarget/{target}/{q}', 'PromotionController@searchTarget');
+$router->add('/admin/promotion', 'PromotionController@display');
+$router->add('/admin/promotion/current', 'PromotionController@display');
+$router->add('/admin/promotion/add/view', 'PromotionController@addDisplay');
+$router->add('/admin/promotion/add/database', 'PromotionController@add');
 $router->add('/admin/promotion/update/{id}', 'Promotion@update');
-$router->add('/admin/promotion/remove/{id}', 'Promotion@remove');
+$router->add('/admin/promotion/remove/{id}', 'PromotionController@remove');
 
 
 

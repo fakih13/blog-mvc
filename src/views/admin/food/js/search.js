@@ -151,8 +151,8 @@ function addIngredientToContainer(
 }
 
 document.addEventListener("click", function (event) {
-  var ingredientSearch = document.getElementById("ingredientSearch");
-  var resultContainer = document.getElementById("resultSearch");
+  const ingredientSearch = document.getElementById("ingredientSearch");
+  const resultContainer = document.getElementById("resultSearch");
 
   if (
     !ingredientSearch.contains(event.target) &&

@@ -5,33 +5,36 @@ ob_start();
 
 <h1>ajouter une promtion</h1>
 
-<form>
-  <input type="text" name="name" id="name" placeholder="nom">
-  <select name="method" id="method">
+<form class="d-flex flex-column">
+  <input type="text" name="name" id="name" placeholder="nom" class="mb-2">
+  <select name="method" id="method" class="mb-2">
     <option value="automatic">Automatique</option>
     <option value="code">code de réduction</option>
   </select>
 
 
-  <select name="target_type" id="tagetType">
+  <select name="target_type" id="tagetType" class="mb-2">
     <option value="categorie">categorie</option>
     <option value="plat">plat</option>
   </select>
   <!-- ici mettre la liste pour choisir le produit ou la catégorie -->
-  <input type="text" name="targetSearch" id="targetSearch" placeholder="chercher">
+  <input type="text" name="targetSearch" id="targetSearch" placeholder="chercher" class="mb-2">
   <div id="resultContainer"></div>
 
-
-  <div id="containerTargetChoice"></div>
   <!--  -->
 
-  <input type="number" name="percentage" id="percentage" placeholder="pourcentage">
-  <input type="date" name="start_date" id="start_date">
-  <input type="checkbox" name="add_end" id="add_end">
+  <input type="number" name="percentage" id="percentage" placeholder="pourcentage" class="mb-2">
+  <label for="start_date">Date de début</label>
+  <div id="date" class="mb-2">
+    <input type="date" name="start_date" id="start_date">
+    <label for="addEnd">Ajouter une date de fin</label>
+    <input type="checkbox" name="addEnd" id="addEnd">
+  </div>
 
   <!-- afficher si add_end est checked -->
-  <input type="date" name="end_date" id="end_date">
+
   <!--  -->
+  <button type="submit">Ajouter</button>
 </form>
 
 
