@@ -1,212 +1,250 @@
-const methodInput = document.querySelector("#method");
-const form = document.querySelector("form");
-methodInput.addEventListener("change", handleMethodChange);
+class FormHandler {
+  constructor() {
+    this.methodInput = document.querySelector("#method");
+    this.form = document.querySelector("form");
+    this.targetType = document.querySelector("#targetType");
+    this.resultContainer = document.getElementById("resultContainer");
+    this.targetSearch = document.querySelector("#targetSearch");
+    this.checkBoxEnd = document.getElementById("addEnd");
+    this.dateContainer = document.querySelector("#date");
 
-function handleMethodChange() {
-  const selectedMethod = methodInput.value;
+    document.addEventListener("DOMContentLoaded", () => {
+      this.toggleTargetSearchVisibility();
+    });
 
-  if (selectedMethod === "code") {
-    addCouponCodeInput(methodInput);
-  } else {
-    removeCouponCodeInput();
+    this.methodInput.addEventListener("change", () =>
+      this.handleMethodChange()
+    );
+    this.targetType?.addEventListener("change", () => {
+      this.selectedTarget = this.targetType.value;
+      this.toggleTargetSearchVisibility();
+    });
+    this.targetSearch?.addEventListener("input", () =>
+      this.searchTargetInSql()
+    );
+    this.checkBoxEnd?.addEventListener("change", () => this.addEnd());
+    this.form?.addEventListener("submit", (e) => this.handleSubmit(e));
+    document.addEventListener("click", (event) =>
+      this.hideResultContainer(event)
+    );
   }
-}
 
-function addCouponCodeInput(methodInput) {
-  const couponCodeInput = document.createElement("input");
-  couponCodeInput.setAttribute("type", "text");
-  couponCodeInput.setAttribute("id", "couponCodeInput");
-  couponCodeInput.setAttribute("placeholder", "Code de réduction");
-  couponCodeInput.setAttribute("name", "code");
-  couponCodeInput.classList.add("mb-2");
-
-  methodInput.insertAdjacentElement("afterend", couponCodeInput);
-}
-
-function removeCouponCodeInput() {
-  const couponCodeInput = document.getElementById("couponCodeInput");
-  if (couponCodeInput) {
-    couponCodeInput.remove();
+  handleMethodChange() {
+    const selectedMethod = this.methodInput.value;
+    selectedMethod === "code"
+      ? this.addCouponCodeInput()
+      : this.removeCouponCodeInput();
   }
-}
 
-const targetType = document.querySelector("#tagetType");
+  addCouponCodeInput() {
+    const couponCodeInput = document.createElement("input");
+    couponCodeInput.setAttribute("type", "text");
+    couponCodeInput.setAttribute("id", "couponCodeInput");
+    couponCodeInput.setAttribute("placeholder", "Code de réduction");
+    couponCodeInput.setAttribute("name", "code");
+    couponCodeInput.classList.add("mb-2");
 
-let selectedTarget = targetType.value;
+    this.methodInput.insertAdjacentElement("afterend", couponCodeInput);
+  }
 
-targetType?.addEventListener("change", function () {
-  selectedTarget = targetType.value;
-});
+  removeCouponCodeInput() {
+    const couponCodeInput = document.getElementById("couponCodeInput");
+    couponCodeInput?.remove();
+  }
 
-let resultContainer = document.getElementById("resultContainer");
+  searchTargetInSql() {
+    const query = this.targetSearch.value;
 
-const targetSearch = document.querySelector("#targetSearch");
-
-targetSearch?.addEventListener("input", function () {
-  //console.log(selectedTarget);
-  searchTargetinSql(selectedTarget, targetSearch, resultContainer);
-});
-
-function searchTargetinSql(selectedTarget, targetSearch, resultContainer) {
-  let query = targetSearch.value;
-
-  if (query.length > 2) {
-    fetch(`/admin/promotion/searchTarget/${selectedTarget}/${query}`)
-      .then((response) => response.json())
-      .then((data) => {
-        resultContainer.innerHTML = "";
-        if (data.length > 0) {
-          resultContainer.style.display = "block";
-          resultContainer.setAttribute("class", "border mt-2");
-          data.forEach((item) => {
-            console.log(item);
-            let resultItem = document.createElement("div");
-            resultItem.setAttribute(
-              "class",
-              "mx-auto p-2 border-bottom pe-auto"
-            );
-            resultItem.textContent = item.Nom;
-
-            // Ajouter un écouteur d'événements pour le clic sur le résultat
-            resultItem.addEventListener("click", function () {
-              const form = document.querySelector("form");
-              addTargetToForm(item, form, targetSearch);
-              resultContainer.style.display = "none";
-              targetSearch.value = "";
+    if (query.length > 2) {
+      fetch(`/admin/promotion/searchTarget/${this.selectedTarget}/${query}`)
+        .then((response) => response.json())
+        .then((data) => {
+          this.resultContainer.innerHTML = "";
+          if (data.length > 0) {
+            this.resultContainer.style.display = "block";
+            this.resultContainer.setAttribute("class", "border mt-2");
+            data.forEach((item) => {
+              const resultItem = document.createElement("div");
+              resultItem.classList.add(
+                "mx-auto",
+                "p-2",
+                "border-bottom",
+                "pe-auto"
+              );
+              resultItem.textContent = item.Nom;
+              resultItem.addEventListener("click", () => {
+                this.addTargetToForm(item);
+                this.resultContainer.style.display = "none";
+                this.targetSearch.value = "";
+              });
+              this.resultContainer.appendChild(resultItem);
             });
-
-            resultContainer.appendChild(resultItem);
-          });
-        } else {
-          resultContainer.innerHTML = "";
-          resultContainer.style.display = "none";
-        }
-      });
+          } else {
+            this.resultContainer.style.display = "none";
+          }
+        });
+    }
   }
-}
 
-function addTargetToForm(target, form, targetSearch) {
-  const targetExist = document.getElementById("target");
+  addTargetToForm(target) {
+    const targetExist = document.getElementById("target");
 
-  if (targetExist) {
-    form.removeChild(targetExist);
+    if (targetExist) {
+      targetExist.remove();
+    }
+
+    const containerTarget = document.createElement("div");
+    containerTarget.classList.add("d-flex");
+    containerTarget.setAttribute("id", "target");
+
+    const spanTarget = document.createElement("span");
+    spanTarget.textContent = target.Nom;
+
+    const inputTarget = document.createElement("input");
+    inputTarget.setAttribute("value", target.PlatID);
+    inputTarget.setAttribute("name", "PlatID");
+    inputTarget.setAttribute("hidden", "");
+
+    const removeButton = document.createElement("button");
+    removeButton.textContent = "X";
+    removeButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      containerTarget.remove();
+    });
+
+    containerTarget.appendChild(spanTarget);
+    containerTarget.appendChild(removeButton);
+    containerTarget.appendChild(inputTarget);
+
+    this.targetSearch.insertAdjacentElement("afterend", containerTarget);
   }
-  let containerTarget = document.createElement("div");
 
-  containerTarget.classList.add("d-flex");
-  containerTarget.setAttribute("id", "target");
+  addEnd() {
+    const endDateIsTrue = document.getElementById("endDate");
+    endDateIsTrue?.remove();
 
-  let spanTarget = document.createElement("span");
-  spanTarget.textContent = target.Nom;
+    if (this.checkBoxEnd.checked) {
+      const endDate = document.createElement("input");
+      endDate.setAttribute("type", "date");
+      endDate.setAttribute("name", "end_date");
+      endDate.setAttribute("id", "endDate");
+      this.checkBoxEnd.insertAdjacentElement("afterend", endDate);
+    }
+  }
 
-  let inputTarget = document.createElement("input");
-
-  inputTarget.setAttribute("value", target.PlatID);
-  inputTarget.setAttribute("name", "PlatID");
-  inputTarget.setAttribute("hidden", "");
-
-  let removeButton = document.createElement("button");
-  removeButton.textContent = "X";
-
-  containerTarget.appendChild(spanTarget);
-  containerTarget.appendChild(removeButton);
-  containerTarget.appendChild(inputTarget);
-
-  targetSearch.insertAdjacentElement("afterend", containerTarget);
-
-  removeButton.addEventListener("click", function (e) {
+  async handleSubmit(e) {
     e.preventDefault();
-    form.removeChild(containerTarget);
-  });
-}
 
-const checkBoxEnd = document.getElementById("addEnd");
-const dateContainer = document.querySelector("#date");
-checkBoxEnd?.addEventListener("change", function () {
-  addEnd(checkBoxEnd, dateContainer);
-});
+    const inputs = Array.from(this.form.querySelectorAll("input, select"));
+    const postData = {};
 
-function addEnd(checkbox, dateContainer) {
-  let endDateIsTrue = document.getElementById("endDate");
-  if (endDateIsTrue) {
-    dateContainer.removeChild(endDateIsTrue);
-  }
-  if (checkbox.checked) {
-    let endDate = document.createElement("input");
-    endDate.setAttribute("type", "date");
-    endDate.setAttribute("name", "end_date");
-    endDate.setAttribute("id", "endDate");
+    let hasEmptyValue = [];
+    let hasInvalidDate = false;
 
-    checkbox.insertAdjacentElement("afterend", endDate);
-  }
-}
+    const currentDate = new Date();
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+    const fullDate = `${year}-${month < 10 ? "0" + month : month}-${
+      day < 10 ? "0" + day : day
+    }`;
 
-form?.addEventListener("submit", async function (e) {
-  e.preventDefault();
-
-  const inputs = this.querySelectorAll("input, select");
-  const postData = {}; // Utilisation d'un objet au lieu d'un tableau
-
-  // Parcourir tous les inputs récupérés
-  inputs.forEach(function (input) {
-    if (input.name === "targetSearch") {
-      return;
-    }
-    const name = input.name;
-    const value = input.value.trim(); // Supprimer les espaces vides
-
-    if (name && value) {
-      // Vérifier si le nom et la valeur ne sont pas vides
-      postData[name] = value;
-      // Afficher la valeur de chaque input dans la console
-      console.log(`${name}: ${value}`);
-      // Vous pouvez faire autre chose avec les valeurs récupérées
-    } else {
-      console.error(`Input "${name}" is empty or invalid.`);
-      // Gérer les erreurs ou afficher un message à l'utilisateur
-    }
-  });
-
-  // Vérification si des données à envoyer
-  if (Object.keys(postData).length > 0) {
-    try {
-      // Requête POST avec la méthode fetch
-      console.log(postData);
-      const response = await fetch("/admin/promotion/add/database", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(postData),
-      });
-
-      // Vérification de la réponse
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        // Traiter la réponse si nécessaire
-      } else {
-        console.error("Failed to send data:", response.statusText);
-        // Gérer les erreurs de requête
+    inputs.forEach((input) => {
+      if (input.name !== "targetSearch" && input.value.trim()) {
+        if (input.name === "start_date" && input.value < fullDate) {
+          hasInvalidDate = true;
+        }
+        if (input.name === "percentage" && input.value <= 0.99) {
+          hasEmptyValue.push({ name: input.name });
+        }
+        if (
+          (input.name === "target_type" && input.value === "categorie") ||
+          (input.name === "target_type" && input.value === "plat")
+        ) {
+          const platIDInput = inputs.find((item) => item.name === "PlatID");
+          if (!platIDInput || !platIDInput.value.trim()) {
+            hasInvalidDate = true;
+          }
+        }
+        postData[input.name] = input.value.trim();
+      } else if (input.name !== "targetSearch") {
+        hasEmptyValue.push({ name: input.name });
       }
-    } catch (error) {
-      console.error("Error:", error.message);
-      // Gérer les erreurs de connexion ou autres erreurs
+    });
+
+    if (hasEmptyValue.length > 0) {
+      hasEmptyValue.forEach((emptyInput) => {
+        this.showAlert(`Le champ ${emptyInput.name} est vide.`, "danger");
+      });
+    } else if (hasInvalidDate) {
+      this.showAlert(
+        "Date antérieure. Veuillez entrer une date valide.",
+        "danger"
+      );
+    } else {
+      if (Object.keys(postData).length > 0) {
+        try {
+          const response = await fetch("/admin/promotion/add/database", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(postData),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            this.showAlert("Données envoyées avec succès.", "success");
+          } else {
+            console.error("Failed to send data:", response.statusText);
+            this.showAlert("Échec de l'envoi des données.", "danger");
+          }
+        } catch (error) {
+          console.error("Error:", error.message);
+          this.showAlert(
+            "Erreur de connexion. Veuillez réessayer plus tard.",
+            "danger"
+          );
+        }
+      } else {
+        console.error("No data to send.");
+      }
     }
-  } else {
-    console.error("No data to send.");
-    // Gérer le cas où aucune donnée n'est disponible pour l'envoi
   }
-});
 
-document.addEventListener("click", function (event) {
-  const targetSearch = document.getElementById("targetSearch");
-  const resultContainer = document.getElementById("resultContainer");
-
-  if (
-    !targetSearch.contains(event.target) &&
-    !resultContainer.contains(event.target)
-  ) {
-    resultContainer.style.display = "none";
+  showAlert(message, type) {
+    console.log(`Alert type: ${type}, Message: ${message}`);
+    const alertBanner = document.createElement("div");
+    alertBanner.classList.add(
+      "alert",
+      `alert-${type}`,
+      "alert-dismissible",
+      "fade",
+      "show"
+    );
+    alertBanner.setAttribute("role", "alert");
+    alertBanner.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+    const containerElement = document.querySelector("main");
+    containerElement?.insertBefore(alertBanner, containerElement.firstChild);
   }
-});
+
+  hideResultContainer(event) {
+    if (
+      !this.targetSearch.contains(event.target) &&
+      !this.resultContainer.contains(event.target)
+    ) {
+      this.resultContainer.style.display = "none";
+    }
+  }
+
+  toggleTargetSearchVisibility() {
+    if (this.targetType.value === "boutique") {
+      this.targetSearch.classList.add("d-none");
+    } else {
+      this.targetSearch.classList.remove("d-none");
+    }
+  }
+}
+
+new FormHandler();

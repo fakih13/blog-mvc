@@ -13,7 +13,8 @@ ob_start();
   </select>
 
 
-  <select name="target_type" id="tagetType" class="mb-2">
+  <select name="target_type" id="targetType" class="mb-2">
+    <option value="boutique">boutique</option>
     <option value="categorie">categorie</option>
     <option value="plat">plat</option>
   </select>
