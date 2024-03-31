@@ -22,6 +22,7 @@ class PromotionController
    */
   public function display()
   {
+    $data = $this->promotionModel->getPromo();
     require_once('../src/views/admin/promotion/index.php');
   }
   /**
@@ -29,7 +30,6 @@ class PromotionController
    */
   public function addDisplay()
   {
-
     require_once('../src/views/admin/promotion/add.php');
   }
 

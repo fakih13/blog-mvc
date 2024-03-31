@@ -94,4 +94,46 @@ class PromotionModel
       return $response;
     }
   }
+  /**
+   * Retrieves information about a promotion based on the provided ID, or all promotions if no ID is specified.
+   *
+   * @param int|null $id The ID of the promotion to retrieve. Optional.
+   * @return array The retrieved promotion data.
+   * @throws \Exception If no content is found.
+   */
+  public function getPromo($id = null)
+  {
+    $response = [
+      'success' => false,
+      'code' => 204,
+      'recipe' => null,
+      'message' => ''
+    ];
+
+    try {
+      $connexion = $this->database->dbConnect();
+      $getPromotionInSql = ($id !== null) ? "SELECT * FROM `promotion` WHERE id = :id" : "SELECT * FROM `promotion`";
+      $statement = $connexion->prepare($getPromotionInSql);
+
+      if ($id !== null) {
+        $statement->bindParam(':id', $id);
+      }
+
+      $statement->execute();
+      $data = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+      if (!empty($data)) {
+        $response['success'] = true;
+        $response['code'] = 200;
+        $response['recipe'] = $data;
+      } else {
+        throw new \Exception('Aucun contenu trouvé.');
+      }
+    } catch (\PDOException $e) {
+      $connexion->rollBack();
+      $response['message'] = $e->getMessage();
+    }
+
+    return $response;
+  }
 }
