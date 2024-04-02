@@ -112,7 +112,13 @@ class PromotionModel
 
     try {
       $connexion = $this->database->dbConnect();
-      $getPromotionInSql = ($id !== null) ? "SELECT * FROM `promotion` WHERE id = :id" : "SELECT * FROM `promotion`";
+      $getPromotionInSql = ($id !== null) ? "SELECT promotion.*, 
+      COALESCE(plat.Nom, categorie.nom) AS target_name
+      FROM promotion
+      LEFT JOIN plat ON promotion.target_type = 'plat' AND promotion.target_id = plat.PlatID
+      LEFT JOIN categorie ON promotion.target_type = 'categorie' AND promotion.target_id = categorie.id
+      WHERE promotion.id = :id;
+" : "SELECT * FROM `promotion`";
       $statement = $connexion->prepare($getPromotionInSql);
 
       if ($id !== null) {
@@ -125,12 +131,12 @@ class PromotionModel
       if (!empty($data)) {
         $response['success'] = true;
         $response['code'] = 200;
-        $response['recipe'] = $data;
+        $response['promotion'] = $data;
       } else {
-        throw new \Exception('Aucun contenu trouvé.');
+        $response['promotion'] = [];
       }
-    } catch (\PDOException $e) {
-      $connexion->rollBack();
+    } catch (\PDOException $e) {/* 
+      $connexion->rollBack(); */
       $response['message'] = $e->getMessage();
     }
 

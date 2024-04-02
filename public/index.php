@@ -30,13 +30,20 @@ $router->add('/admin/food/update/removeIngredient/{idRecipe}/{idIngredient}', 'F
 /* Promotion */
 
 $router->add('/admin/promotion/searchTarget/{target}/{q}', 'PromotionController@searchTarget');
-$router->add('/admin/promotion', 'PromotionController@display');
+$router->add('/admin/promotion', 'PromotionController@displayAll');
+$router->add('/admin/promotion/view/{id}', 'PromotionController@display');
 $router->add('/admin/promotion/current', 'PromotionController@display');
 $router->add('/admin/promotion/add/view', 'PromotionController@addDisplay');
 $router->add('/admin/promotion/add/database', 'PromotionController@add');
 $router->add('/admin/promotion/update/{id}', 'Promotion@update');
 $router->add('/admin/promotion/remove/{id}', 'PromotionController@remove');
 
+
+
+/* Category */
+$router->add('/admin/category', 'Category@display');
+$router->add('/admin/category/add/database', 'category@add');
+$router->add('/admin/category/add/view', 'category@addDisplay');
 
 
 $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -2,12 +2,18 @@
 
 ob_start();
 ?>
-<?php if (isset($promotions)) : ?>
-  <?php foreach ($promotions as $key) : ?>
-    <a href="/<?= $key['id'] ?>"><?= $key['name'] ?></a>
-    <span><?= $key['statut'] ?></span>
-    <span><?= $key['type'] ?></span>
-    <span><?= $key['used'] ?></span>
+<?php if (isset($data)) : ?>
+  <?php foreach ($data['promotion'] as $key) : ?>
+    <a href="promotion/view/<?= $key['id'] ?>"><?= $key['name'] ?>
+      <span><?= $key['name'] ?></span>
+      <span><?= $key['status'] ?></span>
+      <span><?= $key['method'] ?></span>
+      <span><?= $key['target_type'] ?></span>
+      <span><?= $key['target_id'] ?></span>
+      <span><?= $key['percentage'] ?></span>
+      <span><?= $key['start_date'] ?></span>
+      <span><?= $key['end_date'] ?></span>
+    </a>
   <?php endforeach ?>
 
 <?php else : ?>

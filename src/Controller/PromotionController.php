@@ -20,10 +20,20 @@ class PromotionController
    * Displays the promotions page in the administration interface.
    * @return void
    */
-  public function display()
+  public function displayAll()
   {
     $data = $this->promotionModel->getPromo();
+    var_dump($data);
     require_once('../src/views/admin/promotion/index.php');
+  }
+  public function display($id = null)
+  {
+    $decodedId = urldecode($id);
+    if ($decodedId !== null) {
+      $data = $this->promotionModel->getPromo($decodedId);
+      /* var_dump($data); */
+    }
+    require_once('../src/views/admin/promotion/view.php');
   }
   /**
    * display the form to add the promotion and process the addition of the promotion in the database
