@@ -50,10 +50,10 @@
                         </a>
                         <ul id="category" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                             <li class="sidebar-item">
-                                <a href="/admin/category/add/view" class="sidebar-link">ajouter une catégorie</a>
+                                <a href="/admin/category" class="sidebar-link">Afficher toutes les catégories</a>
                             </li>
                             <li class="sidebar-item">
-                                <a href="/admin/category" class="sidebar-link">Afficher toutes les catégories</a>
+                                <a href="/admin/category/add/view" class="sidebar-link">ajouter une catégorie</a>
                             </li>
                         </ul>
                     </li>

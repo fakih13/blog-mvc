@@ -34,7 +34,7 @@ class CategoryModel
                 $response['success'] = true;
                 $response['message'] = 'Enregistrement réussi';
             } else {
-                throw new \Exception('Erreur lors de l\'enregistrement');
+                throw new \PDOException('Erreur lors de l\'enregistrement');
             }
         } catch (\PDOException $e) {
             $response['success'] = false;
@@ -46,13 +46,25 @@ class CategoryModel
 
     public function deleteCategoryFromDatabase($id)
     {
-        $sqlRequest = "DELETE FROM `category` WHERE id = :id";
+        try {
+            $sqlRequest = "DELETE FROM `categorie` WHERE id = :id";
 
-        // Préparation de la requête
-        $connexion = $this->database->dbConnect();
-        $statement = $connexion->prepare($sqlRequest);
+            // Préparation de la requête
+            $connexion = $this->database->dbConnect();
+            $statement = $connexion->prepare($sqlRequest);
 
-        $statement->bindParam(':id', $id);
-        $statement->execute();
+            $statement->bindParam(':id', $id);
+            $statement->execute();
+            if ($statement->rowCount() > 0) {
+                $response['success'] = true;
+                $response['message'] = 'Suppression réussi';
+            } else {
+                throw new \PDOException('Erreur lors de la suppresion');
+            }
+        } catch (\PDOException $e) {
+            $response['success'] = false;
+            $response['message'] = $e->getMessage();
+        }
+        return $response;
     }
 }

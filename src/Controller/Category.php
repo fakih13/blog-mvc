@@ -35,11 +35,11 @@ class Category
       $data = json_decode($json, true);
 
       // Vérifier si des données ont été décodées
+      header('Content-Type: application/json');
       if ($data !== null) {
         // Faire quelque chose avec les données reçues
         // Par exemple, afficher les données
         $saveInSql = $this->model->saveACategoryInTheDatabase($data);
-        header('Content-Type: application/json');
         echo json_encode($saveInSql);
       } else {
         // Si le décodage JSON a échoué
@@ -57,7 +57,13 @@ class Category
     } */
   }
 
-  public function delete()
+  public function delete($id)
   {
+    if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+      $idCategory = urldecode($id);
+      header('Content-Type: application/json');
+      $deleteInSql = $this->model->deleteCategoryFromDatabase($id);
+      echo json_encode($deleteInSql);
+    }
   }
 }

@@ -43,6 +43,7 @@ $router->add('/admin/promotion/remove/{id}', 'PromotionController@remove');
 /* Category */
 $router->add('/admin/category', 'Category@display');
 $router->add('/admin/category/add/database', 'category@add');
+$router->add('/admin/category/delete/database/{id}', 'category@delete');
 $router->add('/admin/category/add/view', 'category@addDisplay');
 
 
