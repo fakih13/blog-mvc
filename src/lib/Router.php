@@ -14,6 +14,7 @@ class Router
     public function dispatch($url)
     {
         session_start(); // Assurez-vous que la session est démarrée
+        /* Variable de SESSION Pour le développement */
         $_SESSION['ADMIN_EMAIL'] = 'madi.bch@gmail.com';
         $_SESSION['ADMIN_FIRSTNAME'] = 'madi';
         $_SESSION['ADMIN_LASTNAME'] = 'fakih';

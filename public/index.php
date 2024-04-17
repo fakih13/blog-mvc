@@ -47,5 +47,9 @@ $router->add('/admin/category/delete/database/{id}', 'category@delete');
 $router->add('/admin/category/add/view', 'category@addDisplay');
 
 
+/* Commande */
+
+$router->add('/admin/order', 'Order@display');
+
 $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $router->dispatch($url);

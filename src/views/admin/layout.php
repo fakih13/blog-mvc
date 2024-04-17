@@ -69,7 +69,7 @@
                                 <a href="#" class="sidebar-link">A retirer</a>
                             </li>
                             <li class="sidebar-item">
-                                <a href="#" class="sidebar-link">Afficher toutes les commandes</a>
+                                <a href="admin/order" class="sidebar-link">Afficher toutes les commandes</a>
                             </li>
                         </ul>
                     </li>
